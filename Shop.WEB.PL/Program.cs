@@ -1,3 +1,7 @@
+using System;
+using Microsoft.EntityFrameworkCore;
+using Shop.DAL.Context;
+
 namespace Shop.WEB.PL
 {
     public class Program
@@ -12,7 +16,8 @@ namespace Shop.WEB.PL
 
             // To make Connection (Depandancy Injection) -------------------------------------------------------------------
 
-            
+            builder.Services.AddDbContext<AppilcationDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             //--------------------------------------------------------------------------------------------------------------
             var app = builder.Build();
 

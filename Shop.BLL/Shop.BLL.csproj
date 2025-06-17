@@ -8,7 +8,10 @@
 
   <ItemGroup>
     <Folder Include="Interface\" />
-    <Folder Include="Repositries\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shop.DAL\Shop.DAL.csproj" />
   </ItemGroup>
 
 </Project>
