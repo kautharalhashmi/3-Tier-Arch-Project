@@ -5,13 +5,14 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shop.DAL.Configuration;
 using Shop.DAL.Entities;
 
 namespace Shop.DAL.Context
 {
-    public class AppilcationDbContext : DbContext
+    public class AppilcationDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppilcationDbContext(DbContextOptions<AppilcationDbContext> options) : base(options)
         {
