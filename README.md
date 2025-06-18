@@ -22,10 +22,14 @@ namespace Shop.DAL.Entities
 ```
 ### 2. Setup the Application DbContext
 Inherit from IdentityDbContext<ApplicationUser> to enable Identity tables:
-```csharp public class AppilcationDbContext : IdentityDbContext<ApplicationUser>```
+```csharp 
+public class AppilcationDbContext : IdentityDbContext<ApplicationUser>
+```
 ### 3. Configure Identity Services in Program.cs 
 Register Identity and configure database connection:
-```csharp builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+```csharp
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppilcationDbContext>()
     .AddDefaultTokenProviders();
 ```
