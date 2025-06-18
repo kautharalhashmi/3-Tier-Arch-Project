@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Shop.DAL.Entities.Category>
+
+@{
+    ViewData["Title"] = "Categories Management";
+}
+
+<h2>Categories Management</h2>
+
+<div>
+    <h3>@(ViewBag.EditCategory == null ? "Create New Category" : "Edit Category")</h3>
+
+    <form asp-action="@(ViewBag.EditCategory == null ? "Create" : "Edit")" method="post">
+        <input type="hidden" name="Id" value="@(ViewBag.EditCategory?.Id ?? 0)" />
+
+        <div class="form-group">
+            <label for="Name">Name</label>
+            <input name="Name" value="@(ViewBag.EditCategory?.Name ?? "")" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            @(ViewBag.EditCategory == null ? "Create" : "Save Changes")
+        </button>
+
+        @if (ViewBag.EditCategory != null)
+        {
+            <a asp-action="Index" class="btn btn-secondary">Cancel Edit</a>
+        }
+    </form>
+</div>
+
+<hr />
+
+<table class="table table-striped mt-4">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Products Count</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>@category.Products?.Count ?? 0</td>
+                <td>
+                    <a asp-action="Index" asp-route-editId="@category.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@category.Id" onclick="return confirm('Delete this category?');" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

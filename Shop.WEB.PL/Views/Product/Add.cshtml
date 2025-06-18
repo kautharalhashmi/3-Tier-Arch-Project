@@ -1,0 +1,25 @@
+﻿@model Shop.WEB.PL.ViewModel.ProductViewModel
+
+<form asp-action="Add" method="post">
+    <div class="form-group">
+        <label asp-for="products.Name"></label>
+        <input asp-for="products.Name" class="form-control" />
+        <span asp-validation-for="products.Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="products.Price"></label>
+        <input asp-for="products.Price" type="number" class="form-control" />
+        <span asp-validation-for="products.Price" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="products.CategoryId"></label>
+        <select asp-for="products.CategoryId" asp-items="Model.Categories" class="form-control">
+            <option value="">-- Select Category --</option>
+        </select>
+        <span asp-validation-for="products.CategoryId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

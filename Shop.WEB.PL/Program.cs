@@ -1,6 +1,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
+using Shop.BLL.Interface;
+using Shop.BLL.Repositries;
 using Shop.DAL.Context;
+using Shop.DAL.Entities;
 
 namespace Shop.WEB.PL
 {
@@ -19,6 +22,14 @@ namespace Shop.WEB.PL
             builder.Services.AddDbContext<AppilcationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             //--------------------------------------------------------------------------------------------------------------
+            // Registering the Generic Repository for Dependency Injection
+            builder.Services.AddScoped<IProductRepo, ProductRepository>();
+            builder.Services.AddScoped<IGenericRepository<Category>, GenericRepositry<Category>>();
+
+            builder.Services.AddScoped<IGenericRepository<Product>, GenericRepositry<Product>>();
+
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -38,7 +49,7 @@ namespace Shop.WEB.PL
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Product}/{action=Index}/{id?}");
 
             app.Run();
         }
