@@ -1,120 +1,79 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Shop.BLL.Interface;
-using Shop.BLL.Repositries;
 using Shop.DAL.Entities;
-using Shop.WEB.PL.ViewModel;
-using System.Threading.Tasks;
 
-namespace Shop.WEB.PL.Controllers
+namespace Shop.API.Controllers
 {
-    public class ProductController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class ProductsController : ControllerBase
     {
-        private readonly IGenericRepository<Product> _product;
-        private readonly IGenericRepository<Category> _categories;
-        private readonly IProductRepo _ProductRepository;
+        private readonly IGenericRepository<Product> _productRepo;
+        private readonly IProductRepo _productCustomRepo;
 
-
-        public ProductController(IGenericRepository<Product> products, IGenericRepository<Category> categories, IProductRepo productRepo)
+        public ProductsController(IGenericRepository<Product> productRepo, IProductRepo productCustomRepo)
         {
-
-            _product = products;
-            _categories = categories;
-            _ProductRepository = productRepo;
+            _productRepo = productRepo;
+            _productCustomRepo = productCustomRepo;
         }
 
-        // List all tasks
-        public IActionResult Index()
+        // GET: api/products
+        [HttpGet]
+        public IActionResult GetAll()
         {
-            var prods = _ProductRepository.GetTodowithCat();
-            return View(prods);
+            var products = _productCustomRepo.GetTodowithCat();
+            return Ok(products);
         }
 
-        // Show add form
-        public IActionResult Add()
+        // GET: api/products/5
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
         {
-            var viewModel = new ProductViewModel
-            {
-                Categories = _categories.GetAll().Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Name
-                })
-            };
-
-            return View(viewModel);
-        }
-        [HttpPost]
-        public IActionResult Add(ProductViewModel viewModel)
-        {
-            if (ModelState.IsValid)
-            {
-                var prod = new Product
-                {
-                    Name = viewModel.products.Name,
-                    Price = viewModel.products.Price,
-                    CategoryId = viewModel.products.CategoryId
-                };
-
-                _product.Add(prod);
-                return RedirectToAction("Index");
-            }
-
-            // If ModelState is invalid, reload categories and return to view
-            viewModel.Categories = _categories.GetAll().Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-            });
-
-            return View(viewModel);
-        }
-
-
-        // Show edit form
-        public IActionResult Edit(int id)
-        {
-            var task = _product.getById(id);
-            if (task == null)
+            var product = _productRepo.getById(id);
+            if (product == null)
                 return NotFound();
 
-            return View(task);
+            return Ok(product);
         }
 
+        // POST: api/products
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Product product)
+        public IActionResult Create([FromBody] Product product)
         {
-            if (ModelState.IsValid)
-            {
-                _product.Update(product);
-                return RedirectToAction(nameof(Index));
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            return View(product);
+            _productRepo.Add(product);
+            return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
         }
 
+        // PUT: api/products/5
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] Product product)
+        {
+            if (id != product.Id)
+                return BadRequest("Product ID mismatch.");
 
+            var existing = _productRepo.getById(id);
+            if (existing == null)
+                return NotFound();
 
+            _productRepo.Update(product);
+            return NoContent();
+        }
+
+        // DELETE: api/products/5
+        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var task = _product.getById(id);
-            if (task == null)
+            var product = _productRepo.getById(id);
+            if (product == null)
                 return NotFound();
 
-            return View(task);
-        }
-
-        [HttpPost, ActionName("Delete")]  // This makes the form post to Delete even though method name is different
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
-        {
-            var task = _product.getById(id);
-            if (task == null)
-                return NotFound();
-
-            _product.Delete(task);  // Or pass ID if that's how your Delete works
-            return RedirectToAction(nameof(Index));
+            _productRepo.Delete(product);
+            return NoContent();
         }
     }
-    }
+}

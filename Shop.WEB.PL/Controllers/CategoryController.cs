@@ -1,66 +1,77 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Shop.BLL.Interface;
 using Shop.DAL.Entities;
 
-using System.Threading.Tasks;
-using Shop.BLL.Interface;
-using Shop.BLL.Repositries;
-
-namespace Shop.WEB.PL.Controllers
+namespace Shop.API.Controllers
 {
-    public class CategoryController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize] // Protect the API using Identity
+    public class CategoriesController : ControllerBase
     {
-        private readonly IGenericRepository<Category> _category;
+        private readonly IGenericRepository<Category> _categoryRepo;
 
-        public CategoryController(IGenericRepository<Category> category)
+        public CategoriesController(IGenericRepository<Category> categoryRepo)
         {
-            _category = category;
+            _categoryRepo = categoryRepo;
         }
 
-        public IActionResult Index()
+        // GET: api/categories
+        [HttpGet]
+        public IActionResult GetAll()
         {
-            var cat = _category.GetAll();
-            return View(cat);
+            var categories = _categoryRepo.GetAll();
+            return Ok(categories);
         }
 
+        // GET: api/categories/5
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            var category = _categoryRepo.getById(id);
+            if (category == null)
+                return NotFound();
+
+            return Ok(category);
+        }
+
+        // POST: api/categories
         [HttpPost]
-        public IActionResult Add(string name)
+        public IActionResult Create([FromBody] Category category)
         {
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                var newCategory = new Category { Name = name };
-                _category.Add(newCategory);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            }
-            return RedirectToAction(nameof(Index));
+            _categoryRepo.Add(category);
+            return CreatedAtAction(nameof(Get), new { id = category.Id }, category);
         }
 
-        public IActionResult Edit(int id)
+        // PUT: api/categories/5
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] Category category)
         {
-            var cat = _category.getById(id);
-            if (cat == null) return NotFound();
-            return View(cat);
+            if (id != category.Id)
+                return BadRequest("Category ID mismatch.");
+
+            var existing = _categoryRepo.getById(id);
+            if (existing == null)
+                return NotFound();
+
+            _categoryRepo.Update(category);
+            return NoContent();
         }
 
-        [HttpPost]
-        public IActionResult Edit(Category category)
-        {
-            if (ModelState.IsValid)
-            {
-                _category.Update(category);
-                return RedirectToAction(nameof(Index));
-            }
-            return View(category);
-        }
-
-        [HttpPost]
+        // DELETE: api/categories/5
+        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var cat = _category.getById(id);
-            if (cat != null)
-            {
-                _category.Delete(cat);
-            }
-            return RedirectToAction(nameof(Index));
+            var category = _categoryRepo.getById(id);
+            if (category == null)
+                return NotFound();
+
+            _categoryRepo.Delete(category);
+            return NoContent();
         }
     }
-    }
+}

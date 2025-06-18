@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shop.BLL.Interface;
 using Shop.BLL.Repositries;
@@ -27,11 +28,23 @@ namespace Shop.WEB.PL
             builder.Services.AddScoped<IGenericRepository<Category>, GenericRepositry<Category>>();
 
             builder.Services.AddScoped<IGenericRepository<Product>, GenericRepositry<Product>>();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                    .AddEntityFrameworkStores<AppilcationDbContext>();
+
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
 
 
             var app = builder.Build();
+            app.UseAuthentication();
 
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            app.MapControllers(); 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
